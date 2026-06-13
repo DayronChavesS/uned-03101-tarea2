@@ -1,0 +1,42 @@
+version: '3'
+services:
+# Se declara un nuevo contenedor
+  vue-app1:
+# Se establece el nombre
+    container_name: chavesdayron-tarea2-3031
+# El contenedor esta basado en el proyecto vue (utiliza su Dockerfile)
+    build: ./vue-project
+# Se abre y se le asigna el puerto 5050
+    environment:
+      - PORT=5050
+# Se inserta este contenedor dentro de la red loadbalancing
+    networks:
+      - loadbalancing
+# Se crea una replica del contenedor anterior
+# (el estudiante esta al tanto de las palabras clave "deploy: mode: replicated replicas: $N_REPLICAS")
+  vue-app2:
+    container_name: chavesdayron-tarea2-3031-2
+    build: ./vue-project   
+    environment:
+      - PORT=5050 
+    networks:
+      - loadbalancing
+      
+  nginx:
+    container_name: nginx_balancer
+# El contenedor esta basado en la carpeta nginx
+    build: ./nginx
+# Se abre y se le asigna el puerto 80
+    ports:
+      - "80:80"
+# Se inserta este contenedor dentro de la red loadbalancing
+    networks:
+      - loadbalancing
+# Se establecen sus dependencias para que sea el ultimo contenedor en crearse
+    depends_on:
+      - vue-app1
+      - vue-app2
+      
+# Se declara la red loadbalancing
+networks:
+  loadbalancing:
